@@ -1,0 +1,15 @@
+{
+	"required": true,
+	"package": "dev.aabstractt.firstmod.common.mixins",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+		"ChestBlockEntityAccessor",
+		"ChestBlockEntityMixin",
+		"LootManagerMixin",
+		"PlacedBlockCriterionMixin",
+		"ServerPlayerInteractMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
