@@ -6,8 +6,12 @@ import com.mojang.logging.LogUtils;
 import dev.aabstractt.firstmod.common.loot.LocalLootTable;
 import lombok.NonNull;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.loot.LootGsons;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.text.LiteralTextContent;
+import net.minecraft.text.MutableText;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -29,6 +33,21 @@ public final class ExampleModServer implements ModInitializer {
     public void onInitialize() {
         System.out.println("Hello Fabric world! (Client)");
 
+        loadLootTables();
+
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated, environment) -> dispatcher.register(CommandManager.literal("chestloot")
+                .then(CommandManager.literal("reload").executes(context -> {
+                    context.getSource().sendFeedback(MutableText.of(new LiteralTextContent("Reloading loot tables...")), true);
+
+                    loadLootTables();
+                    return 1;
+                }))
+        ));
+
+
+    }
+
+    private static void loadLootTables() {
         Gson gson = LootGsons.getTableGsonBuilder()
                 .registerTypeAdapter(LocalLootTable.class, new LocalLootTable.Serializer())
                 .create();
