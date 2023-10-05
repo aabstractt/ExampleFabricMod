@@ -57,6 +57,12 @@ public final class ExampleModServer implements ModInitializer {
 
             LOGGER.info("Loot tables loaded");
 
+            if (LOOT_TABLES.containsKey("default")) {
+                System.out.println("default exists");
+            } else {
+                System.out.println("non exists");
+            }
+
             System.out.println(LOOT_TABLES);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -65,12 +71,8 @@ public final class ExampleModServer implements ModInitializer {
 
     public static @Nullable String getRandomLootTable(@NonNull String biome) {
         LocalLootTable localLootTable = LOOT_TABLES.get(biome);
-        if (localLootTable == null && biome.equalsIgnoreCase("default")) {
-            return null;
-        }
-
         if (localLootTable == null) {
-            return getRandomLootTable("default");
+            return biome.equalsIgnoreCase("default") ? null : getRandomLootTable("default");
         }
 
         String[] identifiers = localLootTable.getIdentifiers();

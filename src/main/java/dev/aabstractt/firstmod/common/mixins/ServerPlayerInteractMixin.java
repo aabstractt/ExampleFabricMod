@@ -2,13 +2,10 @@ package dev.aabstractt.firstmod.common.mixins;
 
 import dev.aabstractt.firstmod.common.ChestBlockEntityUsable;
 import dev.aabstractt.firstmod.server.ExampleModServer;
-import net.minecraft.advancement.criterion.PlacedBlockCriterion;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.ChestBlockEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.RegistryKey;
@@ -22,10 +19,8 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -39,12 +34,8 @@ import java.util.concurrent.ThreadLocalRandom;
 @Mixin(ServerPlayerInteractionManager.class)
 public final class ServerPlayerInteractMixin {
 
-    @Final
-    protected @Shadow ServerPlayerEntity player;
-
-    @Shadow protected ServerWorld world;
-
-    @Shadow @Final private static Logger LOGGER;
+    @Final protected @Shadow ServerPlayerEntity player;
+    protected @Shadow ServerWorld world;
 
     @Inject(at = @At("HEAD"), method = "interactBlock")
     public void onInteractBlock(
@@ -72,13 +63,15 @@ public final class ServerPlayerInteractMixin {
         }
 
         if (!(blockEntity instanceof ChestBlockEntityUsable)) {
-            LOGGER.error("Block entity is not an instance of UsableClass");
+            ExampleModServer.LOGGER.error("Block entity is not an instance of UsableClass");
 
             return;
         }
 
         if (((ChestBlockEntityUsable) blockEntity).isUsed()) {
-            LOGGER.warn("Block entity has already been used");
+            ExampleModServer.LOGGER.warn("Block entity has already been used");
+
+            player.sendMessage(MutableText.of(new LiteralTextContent("Este cofre ya ha sido usado")), false);
 
             return;
         }
@@ -106,12 +99,9 @@ public final class ServerPlayerInteractMixin {
         );
         ((ChestBlockEntity) blockEntity).checkLootInteraction(player);
 
-        if (blockEntity instanceof ChestBlockEntityUsable) {
-            ((ChestBlockEntityUsable) blockEntity).setUsed(true);
+        ((ChestBlockEntityUsable) blockEntity).setUsed(true);
+        blockEntity.markDirty();
 
-            System.out.println("Usable!!!");
-        }
-
-        player.sendMessage(MutableText.of(new LiteralTextContent("You have interacted with a chest!")), false);
+        player.sendMessage(MutableText.of(new LiteralTextContent("Le otorgaste el loot a este cobre del bioma %s, el loot tiene id de %s".formatted(optional.get().getValue().getPath(), identifier))), false);
     }
 }
