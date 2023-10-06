@@ -30,10 +30,10 @@ public final class LootManagerMixin {
 
         for (LocalLootTable localLootTable : ExampleModServer.LOOT_TABLES.values()) {
             for (int i = 0; i < localLootTable.getIdentifiers().length; i++) {
-                String identifier = localLootTable.getIdentifiers()[i];
-                LootTable lootTable = localLootTable.getTables()[i];
-
-                tables.put(Identifier.splitOn(identifier, ':'), lootTable);
+                tables.put(
+                        Identifier.splitOn(localLootTable.getIdentifiers()[i], ':'),
+                        localLootTable.getTables()[i]
+                );
             }
         }
 

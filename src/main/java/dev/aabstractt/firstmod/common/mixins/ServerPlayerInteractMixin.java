@@ -7,7 +7,6 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -46,10 +45,6 @@ public final class ServerPlayerInteractMixin {
             BlockHitResult hitResult,
             CallbackInfoReturnable<ActionResult> cir
     ) {
-        if (player.getStackInHand(hand).getItem() == Items.STICK) {
-            player.sendMessage(MutableText.of(new LiteralTextContent("You have interacted with a block!")), false);
-        }
-
         BlockState blockState = world.getBlockState(hitResult.getBlockPos());
         if (!blockState.isOf(Blocks.CHEST)) {
             System.out.println("No soy, yo soy de " + blockState.getBlock().getName());

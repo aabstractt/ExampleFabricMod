@@ -35,54 +35,35 @@ public final class ExampleModServer implements ModInitializer {
 
         loadLootTables();
 
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated, environment) -> dispatcher.register(CommandManager.literal("chestloot")
-                .then(CommandManager.literal("reload").executes(context -> {
-                    context.getSource().sendFeedback(MutableText.of(new LiteralTextContent("Reloading loot tables...")), true);
+        CommandRegistrationCallback.EVENT.register(
+                (dispatcher, dedicated, environment) -> dispatcher.register(CommandManager.literal("chestloot")
+                        .then(CommandManager.literal("reload").executes(context -> {
+                            context.getSource().sendFeedback(MutableText.of(new LiteralTextContent("Reloading loot tables...")), true);
 
-                    loadLootTables();
-                    return 1;
-                }))
-        ));
+                            loadLootTables();
 
-
+                            return 1;
+                        }))
+                )
+        );
     }
 
     private static void loadLootTables() {
-        Gson gson = LootGsons.getTableGsonBuilder()
-                .registerTypeAdapter(LocalLootTable.class, new LocalLootTable.Serializer())
-                .create();
-
-        LOGGER.info("Dir is " + FabricLoader.getInstance().getConfigDir().toString());
-
         File file = new File(FabricLoader.getInstance().getConfigDir().resolve("config.json").toString());
         if (!file.exists()) {
             LOGGER.error("File doesn't exist");
 
-            LOOT_TABLES.put("plains", LocalLootTable.buildPlains());
-
-            try {
-                FileUtils.write(file, gson.toJson(LOOT_TABLES));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            LOGGER.info("File created");
-
             return;
         }
+
+        Gson gson = LootGsons.getTableGsonBuilder()
+                .registerTypeAdapter(LocalLootTable.class, new LocalLootTable.Serializer())
+                .create();
 
         try {
             LOOT_TABLES = gson.fromJson(FileUtils.readFileToString(file, Charset.defaultCharset()), new TypeToken<Map<String, LocalLootTable>>(){}.getType());
 
             LOGGER.info("Loot tables loaded");
-
-            if (LOOT_TABLES.containsKey("default")) {
-                System.out.println("default exists");
-            } else {
-                System.out.println("non exists");
-            }
-
-            System.out.println(LOOT_TABLES);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
